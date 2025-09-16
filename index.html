@@ -1,3 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>空間群探偵ゲーム (test2)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <h1>空間群探偵ゲーム (test)</h1>
+    <h2 id="problem-title"></h2>
+    
+    <div id="ui-container">
+        <div id="reflection-area">
+            <h3>証拠: 回折反射リスト</h3>
+            <div class="filter-buttons">
+                <button onclick="displayReflections('all')">すべて</button>
+                <button onclick="displayReflections('h00')">h00</button>
+                <button onclick="displayReflections('0k0')">0k0</button>
+                <button onclick="displayReflections('00l')">00l</button>
+                <button onclick="displayReflections('h0l')">h0l</button>
+            </div>
+            <div id="reflection-data"></div>
+        </div>
+
+        <div id="analysis-area">
+            <h3>分析: 対称要素の推定</h3>
+            <p>消滅則から、存在する対称要素を選択してください。</p>
+            <div id="choices">
+                </div>
+        </div>
+    </div>
+
+    <div id="action-buttons" style="text-align: center; margin-top: 20px;">
+        <button onclick="checkAnswer()">回答を決定する</button>
+        <button id="next-problem-btn" class="hidden" onclick="nextProblem()">次の問題へ</button>
+    </div>
+
+    <div id="feedback" class="hidden"></div>
+</div>
+
 <script type="module" src="main.js"></script>
 
 </body>
