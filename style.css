@@ -1,0 +1,67 @@
+/* 簡単なスタイリング */
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    background-color: #f0f2f5;
+}
+#game-container {
+    width: 800px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+h1, h2 {
+    text-align: center;
+    color: #333;
+}
+#ui-container {
+    display: flex;
+    gap: 20px;
+}
+#reflection-area, #analysis-area {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#reflection-data {
+    height: 300px;
+    overflow-y: scroll;
+    background-color: #fafafa;
+    padding: 10px;
+    font-family: monospace;
+    white-space: pre; /* 等幅フォントで整形 */
+    border: 1px solid #ddd;
+}
+.filter-buttons button, #action-buttons button {
+    margin: 5px 2px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.filter-buttons button:hover, #action-buttons button:hover {
+    background-color: #0056b3;
+}
+#feedback {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+.correct {
+    background-color: #d4edda;
+    color: #155724;
+}
+.incorrect {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+.hidden {
+    display: none;
+}
