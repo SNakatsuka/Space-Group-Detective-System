@@ -58,7 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
     btnFilterH0l.addEventListener('click', () => displayReflections('h0l'));
 
     // 回答ボタンが押されたときの処理    
-    btnCheckAnswer.addEventListener('click', checkAnswer);
+    btnCheckAnswer.addEventListener('click', () => {
         const userAnswers = [];
         document.querySelectorAll('#choices input:checked').forEach(input => {
             userAnswers.push(input.value);
@@ -78,8 +78,9 @@ window.addEventListener('DOMContentLoaded', () => {
             feedbackEl.textContent = '不正解です。もう一度よく見てみましょう。';
         }
     });
- 
-    btnNextProblem.addEventListener('click', nextProblem);
+    
+    // 「次の問題へ」ボタンがクリックされたら「{}」の中の処理を実行する
+    btnNextProblem.addEventListener('click', () => {
         // 次の問題を表示する（これも game-logic ではなく main.js の責務）
         displayProblem();
     });
