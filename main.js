@@ -1,7 +1,7 @@
 // main.js
 
 // game-logic.js から必要な関数をインポート
-import { generateNewProblem, checkAnswer, displayReflections, nextProblem } from './game-logic.js';
+import { generateNewProblem, checkAnswer, displayReflections } from './game-logic.js';
 
 // HTMLの要素がすべて読み込まれてから実行するための定型句
 window.addEventListener('DOMContentLoaded', () => {
