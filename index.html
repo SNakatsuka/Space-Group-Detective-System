@@ -14,14 +14,14 @@
     <div id="ui-container">
         <div id="reflection-area">
             <h3>証拠: 回折反射リスト</h3>
-            <div class="filter-buttons">
-                <button onclick="displayReflections('all')">すべて</button>
-                <button onclick="displayReflections('h00')">h00</button>
-                <button onclick="displayReflections('0k0')">0k0</button>
-                <button onclick="displayReflections('00l')">00l</button>
-                <button onclick="displayReflections('h0l')">h0l</button>
-            </div>
-            <div id="reflection-data"></div>
+                <div class="filter-buttons">
+                    <button id="btn-filter-all">すべて</button>
+                    <button id="btn-filter-h00">h00</button>
+                    <button id="btn-filter-0k0">0k0</button>
+                    <button id="btn-filter-00l">00l</button>
+                    <button id="btn-filter-h0l">h0l</button>
+                </div>
+           <div id="reflection-data"></div>
         </div>
 
         <div id="analysis-area">
@@ -33,10 +33,10 @@
     </div>
 
     <div id="action-buttons" style="text-align: center; margin-top: 20px;">
-        <button onclick="checkAnswer()">回答を決定する</button>
-        <button id="next-problem-btn" class="hidden" onclick="nextProblem()">次の問題へ</button>
-    </div>
-
+        <button id="btn-check-answer">回答を決定する</button>
+        <button id="btn-next-problem" class="hidden">次の問題へ</button>
+    </div> 
+    
     <div id="feedback" class="hidden"></div>
 </div>
 
