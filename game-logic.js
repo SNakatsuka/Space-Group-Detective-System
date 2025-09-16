@@ -2,6 +2,7 @@
 
 // 別のファイルからデータをインポートする
 import { spaceGroups } from './spacegroup-data.js';
+import { POSSIBLE_ELEMENTS_BY_SYSTEM } from './symmetry-elements-by-system.js';
 
 let currentProblem = null;
 
@@ -10,31 +11,30 @@ let currentProblem = null;
  */
 export function generateNewProblem() {
     // データからランダムに1つの空間群を選択
-    const randomIndex = Math.floor(Math.random() * spaceGroups.length);
-    const selectedSpaceGroup = spaceGroups[randomIndex];
+    const spacegroup = spaceGroups[Math.floor(Math.random() * spaceGroups.length)];
+    const correctAnswers = spacegroup.conditions.map(c => c.reason);
 
-    // ここで、選択肢を生成するロジックなども実装する
-    // (例: 正解の対称要素 + いくつかのダミー選択肢)
-    const correctReasons = selectedSpaceGroup.conditions.map(c => c.reason);
+    // 晶系に合ったダミー候補リストを取得
+    const dummyPool = POSSIBLE_ELEMENTS_BY_SYSTEM[spacegroup.system] || [];
     
-    // ダミーの選択肢を用意（実際にはもっと賢い方法で生成する）
-    const dummyReasons = [
-        "a軸に沿った 2₁ らせん軸",
-        "c軸に垂直な b 映進面",
-        "体心格子 (I)"
-    ];
+    const dummyChoices = [];
+    const neededDummies = Math.max(0, 5 - correctAnswers.length);
     
-    // 正解とダミーを混ぜてシャッフルする
-    const allChoices = [...new Set([...correctReasons, ...dummyReasons])]; // 重複を削除
-    // ... シャッフル処理 ...
+    const shuffledDummies = dummyPool.sort(() => 0.5 - Math.random());
+    for (const dummy of shuffledDummies) {
+        if (dummyChoices.length >= neededDummies) break;
+        if (!correctAnswers.includes(dummy)) {
+            dummyChoices.push(dummy);
+        }
+    }
+
+    const finalChoices = [...correctAnswers, ...dummyChoices].sort(() => 0.5 - Math.random());
 
     currentProblem = {
-        spacegroup: selectedSpaceGroup,
-        correctAnswers: correctReasons,
-        choices: allChoices,
-        // この消滅則に従う反射データを動的に生成するロジック
-        // (これは高度な実装なので、ここでは省略)
-        reflections: generateMockReflections(selectedSpaceGroup.conditions) 
+        spacegroup,
+        correctAnswers,
+        choices: finalChoices,
+        reflections: generateMockReflections(spacegroup.conditions) // 反射リストもここで生成
     };
     
     return currentProblem;
@@ -53,13 +53,57 @@ export function checkAnswer(userAnswers) {
     return correct.length === userAnswers.length && correct.every(ans => userAnswers.includes(ans));
 }
 
+/**
+ * displayReflections 関数を追加
+ * 反射リストをフィルタリングして表示する関数
+ * @param {string} filter - 'all', 'h00', '0k0', '00l', 'h0l'など
+ */
+export function displayReflections(filter) {
+    if (!currentProblem) return;
+
+    // main.jsからDOM要素を直接操作するために取得
+    const reflectionDataEl = document.getElementById('reflection-data');
+    if (!reflectionDataEl) return;
+
+    const reflections = currentProblem.reflections;
+    let filtered = [];
+
+    switch (filter) {
+        case 'h00':
+            filtered = reflections.filter(([h, k, l]) => k === 0 && l === 0);
+            break;
+        case '0k0':
+            filtered = reflections.filter(([h, k, l]) => h === 0 && l === 0);
+            break;
+        case '00l':
+            filtered = reflections.filter(([h, k, l]) => h === 0 && k === 0);
+            break;
+        case 'h0l':
+            filtered = reflections.filter(([h, k, l]) => k === 0);
+            break;
+        default: // 'all'
+            filtered = reflections;
+    }
+
+    // 表示用に整形
+    let output = '  h   k   l   Intensity\n';
+    output += '-------------------------\n';
+    filtered.forEach(([h, k, l, intensity]) => {
+        output += `${String(h).padStart(3, ' ')} ${String(k).padStart(3, ' ')} ${String(l).padStart(3, ' ')}   ${intensity.toFixed(1)}\n`;
+    });
+    reflectionDataEl.textContent = output;
+}
 
 // 消滅則に基づいて模擬的な反射データを生成するヘルパー関数（簡易版）
 function generateMockReflections(conditions) {
-    // ここで、与えられた消滅則(conditions)を満たすような
-    // 反射のリストを動的に作成する。
-    // 例: { reflectionType: "0k0", condition: "k=2n" } があれば、
-    // [0,1,0], [0,3,0] などを生成しないようにする。
-    // この部分はゲームのリアリティを高める重要な部分です。
-    return [ [0, 2, 0, 100.0], [1, 1, 1, 150.0] /* ...など */ ];
+    // TODO: この関数を本格的に実装する必要がある
+    // 現状は、どの問題でも同じダミーデータを返す
+    const mockData = [
+        [2, 0, 0, 150.0], [4, 0, 0, 80.0],  // h00 (h=2n)
+        [0, 2, 0, 250.0], [0, 4, 0, 180.0],  // 0k0 (k=2n)
+        [0, 0, 2, 300.0], [0, 0, 4, 120.0],  // 00l (l=2n)
+        [1, 0, 2, 90.0],  [2, 0, 4, 110.0],   // h0l (l=2n)
+        [1, 1, 1, 500.0], [2, 1, 3, 220.0], [1, 2, 3, 180.0] // general
+    ];
+    return mockData;
 }
