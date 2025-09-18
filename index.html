@@ -2,76 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>空間群探偵ゲーム (test)</title>
-    <style>
-        /* 簡単なスタイリング */
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            background-color: #f0f2f5;
-        }
-        #game-container {
-            width: 800px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            text-align: center;
-            color: #333;
-        }
-        #ui-container {
-            display: flex;
-            gap: 20px;
-        }
-        #reflection-area, #analysis-area {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        #reflection-data {
-            height: 300px;
-            overflow-y: scroll;
-            background-color: #fafafa;
-            padding: 10px;
-            font-family: monospace;
-            white-space: pre; /* 等幅フォントで整形 */
-            border: 1px solid #ddd;
-        }
-        .filter-buttons button, #action-buttons button {
-            margin: 5px 2px;
-            padding: 8px 12px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .filter-buttons button:hover, #action-buttons button:hover {
-            background-color: #0056b3;
-        }
-        #feedback {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .correct {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .incorrect {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <title>空間群探偵ゲーム (test2)</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -82,14 +14,14 @@
     <div id="ui-container">
         <div id="reflection-area">
             <h3>証拠: 回折反射リスト</h3>
-            <div class="filter-buttons">
-                <button onclick="displayReflections('all')">すべて</button>
-                <button onclick="displayReflections('h00')">h00</button>
-                <button onclick="displayReflections('0k0')">0k0</button>
-                <button onclick="displayReflections('00l')">00l</button>
-                <button onclick="displayReflections('h0l')">h0l</button>
-            </div>
-            <div id="reflection-data"></div>
+                <div class="filter-buttons">
+                    <button id="btn-filter-all">すべて</button>
+                    <button id="btn-filter-h00">h00</button>
+                    <button id="btn-filter-0k0">0k0</button>
+                    <button id="btn-filter-00l">00l</button>
+                    <button id="btn-filter-h0l">h0l</button>
+                </div>
+           <div id="reflection-data"></div>
         </div>
 
         <div id="analysis-area">
@@ -101,181 +33,14 @@
     </div>
 
     <div id="action-buttons" style="text-align: center; margin-top: 20px;">
-        <button onclick="checkAnswer()">回答を決定する</button>
-        <button id="next-problem-btn" class="hidden" onclick="nextProblem()">次の問題へ</button>
-    </div>
-
+        <button id="btn-check-answer">回答を決定する</button>
+        <button id="btn-next-problem" class="hidden">次の問題へ</button>
+    </div> 
+    
     <div id="feedback" class="hidden"></div>
 </div>
 
-<script>
-// --- ゲームのデータ定義 ---
-const problems = [
-    {
-        title: "問題1: 単斜晶系の結晶",
-        spacegroup: "P2₁/c",
-        // P21/c の消滅則: 0k0 (k=2n), h0l (l=2n)
-        reflections: [
-            // 一般反射 (消滅しない)
-            [1, 1, 1, 150.3], [2, 1, 3, 88.1], [-1, 2, 1, 120.5],
-            // 0k0 反射 (k=偶数のみ)
-            [0, 2, 0, 255.0], [0, 4, 0, 180.2], [0, 6, 0, 95.7],
-            // h0l 反射 (l=偶数のみ)
-            [1, 0, 2, 99.4], [2, 0, 2, 130.8], [3, 0, -4, 75.1], [1, 0, 4, 60.0],
-            // 意図的に消滅させた反射 (本来は観測されない)
-            // [0, 1, 0, 0], [0, 3, 0, 0], [1, 0, 1, 0], [2, 0, 3, 0]
-        ],
-        // 正解の対称要素のID
-        correctChoices: ['21_axis_b', 'c_glide_a'],
-        // ユーザーに提示する選択肢
-        choices: [
-            { id: '21_axis_a', label: 'a軸に沿った 2₁ らせん軸' }, // h00: h=2n
-            { id: '21_axis_b', label: 'b軸に沿った 2₁ らせん軸' }, // 0k0: k=2n
-            { id: 'c_glide_a', label: 'a軸に垂直な c 映進面' },   // h0l: l=2n
-            { id: 'b_glide_c', label: 'c軸に垂直な b 映進面' }    // hk0: k=2n
-        ]
-    },
-    {
-        title: "問題2: 直方晶系の結晶",
-        spacegroup: "P2₁2₁2₁",
-        // P212121 の消滅則: h00 (h=2n), 0k0 (k=2n), 00l (l=2n)
-        reflections: [
-            // 一般反射
-            [1, 1, 1, 200.0], [1, 2, 3, 150.0], [3, 2, 1, 100.0],
-            // h00 (h=偶数のみ)
-            [2, 0, 0, 300.0], [4, 0, 0, 250.0],
-            // 0k0 (k=偶数のみ)
-            [0, 2, 0, 280.0], [0, 4, 0, 220.0],
-            // 00l (l=偶数のみ)
-            [0, 0, 2, 350.0], [0, 0, 4, 180.0]
-        ],
-        correctChoices: ['21_axis_a', '21_axis_b', '21_axis_c'],
-        choices: [
-            { id: '21_axis_a', label: 'a軸に沿った 2₁ らせん軸' }, // h00: h=2n
-            { id: '21_axis_b', label: 'b軸に沿った 2₁ らせん軸' }, // 0k0: k=2n
-            { id: '21_axis_c', label: 'c軸に沿った 2₁ らせん軸' }, // 00l: l=2n
-            { id: 'n_glide_a', label: 'a軸に垂直な n 映進面' }    // hkl: k+l=2n
-        ]
-    }
-];
-
-let currentProblemIndex = 0;
-let currentReflections = [];
-
-// --- DOM要素の取得 ---
-const problemTitleEl = document.getElementById('problem-title');
-const reflectionDataEl = document.getElementById('reflection-data');
-const choicesEl = document.getElementById('choices');
-const feedbackEl = document.getElementById('feedback');
-const nextProblemBtn = document.getElementById('next-problem-btn');
-
-
-// --- ゲームのロジック関数 ---
-
-/**
- * 問題をロードして表示する関数
- * @param {number} index - 問題のインデックス
- */
-function loadProblem(index) {
-    const problem = problems[index];
-    currentReflections = problem.reflections;
-    
-    // UIの更新
-    problemTitleEl.textContent = problem.title;
-    feedbackEl.classList.add('hidden');
-    nextProblemBtn.classList.add('hidden');
-
-    // 選択肢の生成
-    choicesEl.innerHTML = '';
-    problem.choices.forEach(choice => {
-        choicesEl.innerHTML += `
-            <div>
-                <input type="checkbox" id="${choice.id}" name="symmetry" value="${choice.id}">
-                <label for="${choice.id}">${choice.label}</label>
-            </div>
-        `;
-    });
-
-    // 最初の反射リストを表示
-    displayReflections('all');
-}
-
-/**
- * 反射リストをフィルタリングして表示する関数
- * @param {string} filter - 'all', 'h00', '0k0', '00l', 'h0l'など
- */
-function displayReflections(filter) {
-    let filtered = [];
-    switch (filter) {
-        case 'h00':
-            filtered = currentReflections.filter(([h, k, l]) => k === 0 && l === 0);
-            break;
-        case '0k0':
-            filtered = currentReflections.filter(([h, k, l]) => h === 0 && l === 0);
-            break;
-        case '00l':
-            filtered = currentReflections.filter(([h, k, l]) => h === 0 && k === 0);
-            break;
-        case 'h0l':
-            filtered = currentReflections.filter(([h, k, l]) => k === 0);
-            break;
-        default: // 'all'
-            filtered = currentReflections;
-    }
-
-    // 表示用に整形
-    let output = '  h   k   l   Intensity\n';
-    output += '-------------------------\n';
-    filtered.forEach(([h, k, l, intensity]) => {
-        output += `${String(h).padStart(3, ' ')} ${String(k).padStart(3, ' ')} ${String(l).padStart(3, ' ')}   ${intensity.toFixed(1)}\n`;
-    });
-    reflectionDataEl.textContent = output;
-}
-
-/**
- * 回答をチェックする関数
- */
-function checkAnswer() {
-    const problem = problems[currentProblemIndex];
-    const selectedChoices = [];
-    document.querySelectorAll('#choices input:checked').forEach(input => {
-        selectedChoices.push(input.value);
-    });
-
-    // 配列の要素が完全に一致するかどうかをチェック
-    const isCorrect = problem.correctChoices.length === selectedChoices.length &&
-                      problem.correctChoices.every(choice => selectedChoices.includes(choice));
-
-    // フィードバックの表示
-    feedbackEl.classList.remove('hidden', 'correct', 'incorrect');
-    if (isCorrect) {
-        feedbackEl.classList.add('correct');
-        feedbackEl.innerHTML = `正解！<br>これらの対称要素から推定される空間群は <strong>${problem.spacegroup}</strong> です。`;
-        if (currentProblemIndex < problems.length - 1) {
-            nextProblemBtn.classList.remove('hidden');
-        }
-    } else {
-        feedbackEl.classList.add('incorrect');
-        feedbackEl.textContent = '不正解です。もう一度、消滅則をよく観察してみましょう。';
-    }
-}
-
-/**
- * 次の問題に進む関数
- */
-function nextProblem() {
-    currentProblemIndex++;
-    if (currentProblemIndex < problems.length) {
-        loadProblem(currentProblemIndex);
-    }
-}
-
-// --- ゲームの初期化 ---
-window.onload = () => {
-    loadProblem(currentProblemIndex);
-};
-
-</script>
+<script type="module" src="main.js"></script>
 
 </body>
 </html>
